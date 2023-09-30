@@ -63,6 +63,10 @@
     -fx-background-insets: 0 0 0 0;
 }
 
+.table-view .table-cell{
+    -fx-alignment: CENTER;
+}
+
 .table-view .column-header, .filter{
     -fx-background-color: transparent;
     -fx-size: 40px;

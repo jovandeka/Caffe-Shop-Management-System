@@ -120,6 +120,9 @@ public class CaffeLoginController {
                 result = prepare.executeQuery();
 
                 if(result.next()){
+
+                    data.username = si_username.getText();
+
                     alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Information Message");
                     alert.setHeaderText("");

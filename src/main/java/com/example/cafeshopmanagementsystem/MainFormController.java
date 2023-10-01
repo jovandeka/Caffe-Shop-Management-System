@@ -2,9 +2,12 @@ package com.example.cafeshopmanagementsystem;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -12,6 +15,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -26,13 +30,16 @@ import java.util.*;
 
 public class MainFormController implements Initializable {
     @FXML
-    private Button Inventory_btn;
+    private Button inventory_btn;
 
     @FXML
     private Button customers_btn;
 
     @FXML
     private Button dashboard_btn;
+
+    @FXML
+    private AnchorPane dashboard_form;
 
     @FXML
     private Button inventory_addBtn;
@@ -109,6 +116,45 @@ public class MainFormController implements Initializable {
     @FXML
     private Label username;
 
+    @FXML
+    private TextField menu_amount;
+
+    @FXML
+    private Label menu_change;
+
+    @FXML
+    private TableColumn<?, ?> menu_col_productName;
+
+    @FXML
+    private TableColumn<?, ?> menu_col_quantity;
+
+    @FXML
+    private AnchorPane menu_form;
+
+    @FXML
+    private TableView<?> menu_tableView;
+
+    @FXML
+    private TableColumn<?, ?> menu_col_price;
+
+    @FXML
+    private GridPane menu_gridPane;
+
+    @FXML
+    private Button menu_payBtn;
+
+    @FXML
+    private Button menu_receiptBtn;
+
+    @FXML
+    private Button menu_removeBtn;
+
+    @FXML
+    private ScrollPane menu_scrollPane;
+
+    @FXML
+    private Label menu_total;
+
     private Alert alert;
 
     private Connection connect;
@@ -117,6 +163,8 @@ public class MainFormController implements Initializable {
     private ResultSet result;
 
     private Image image;
+
+    private ObservableList<ProductData> cardListData = FXCollections.observableArrayList();
 
     public void inventoryAddBtn(){
         if(inventory_productID.getText().isEmpty()
@@ -131,6 +179,7 @@ public class MainFormController implements Initializable {
             alert.setTitle("Error Message");
             alert.setHeaderText(null);
             alert.setContentText("Please fill-in the blank fields.");
+            alert.showAndWait();
         } else{
             String checkProdID = "SELECT prod_id FROM product WHERE prod_id = '"
                     + inventory_productID.getText() +"'";
@@ -247,6 +296,49 @@ public class MainFormController implements Initializable {
                 }catch (Exception e){e.printStackTrace();}
 
             }
+    }
+
+    public void inventoryDeleteBtn(){
+        if(inventory_productID.getText().isEmpty()){
+
+            alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error Message");
+            alert.setHeaderText(null);
+            alert.setContentText("Please fill-in product ID.");
+            alert.showAndWait();
+        } else {
+            alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmation Message");
+            alert.setHeaderText(null);
+            alert.setContentText("Are you sure you want to delete product with ID: " + inventory_productID.getText() + "?");
+            Optional<ButtonType> option = alert.showAndWait();
+
+            if(option.get().equals(ButtonType.OK)){
+
+                String deleteData = "DELETE FROM product WHERE id = " +data.id;
+
+                try {
+                    prepare = connect.prepareStatement(deleteData);
+                    prepare.executeUpdate();
+
+                    alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Information Message");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Succesfully deleted product!");
+                    alert.showAndWait();
+
+                    inventoryShowData();
+                    inventoryClearBtn();
+                }catch (Exception e){e.printStackTrace();}
+
+            }else{
+                alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Information Message");
+                alert.setHeaderText(null);
+                alert.setContentText("Cancelled.");
+                alert.showAndWait();
+            }
+        }
     }
 
     public void inventoryClearBtn(){
@@ -367,6 +459,86 @@ public class MainFormController implements Initializable {
         inventory_status.setItems(listData);
     }
 
+    public ObservableList<ProductData> menuGetData(){
+
+        String sql="SELECT * FROM product";
+
+        ObservableList<ProductData> listData = FXCollections.observableArrayList();
+        connect = database.conectDB();
+
+        try{
+            prepare = connect.prepareStatement(sql);
+            result = prepare.executeQuery();
+
+            ProductData prod;
+
+            while (result.next()){
+                prod = new ProductData(result.getInt("id"),
+                        result.getString("prod_id"),
+                        result.getString("prod_name"),
+                        result.getDouble("price"),
+                        result.getString("image"));
+
+                listData.add(prod);
+            }
+        }catch (Exception e){e.printStackTrace();}
+
+        return listData;
+    }
+
+    public void menuDisplayCard(){
+        cardListData.clear();
+        cardListData.addAll(menuGetData());
+
+        int row = 0;
+        int column = 0;
+
+        menu_gridPane.getRowConstraints().clear();
+        menu_gridPane.getColumnConstraints().clear();
+
+        for(int q=0; q<cardListData.size(); q++){
+            try{
+                FXMLLoader load = new FXMLLoader();
+                load.setLocation(getClass().getResource("card-product.fxml"));
+                AnchorPane pane = load.load();
+                CardProductController cardC = load.getController();
+                cardC.setData(cardListData.get(q));
+
+                if(column == 3){
+                    column = 0;
+                    row+=1;
+                }
+
+                menu_gridPane.add(pane, column++, row);
+
+                GridPane.setMargin(pane, new Insets(10));
+
+            }catch (Exception e){e.printStackTrace();}
+        }
+    }
+
+    public void switchForm(ActionEvent event){
+        if(event.getSource() == dashboard_btn){
+            dashboard_form.setVisible(true);
+            inventory_form.setVisible(false);
+            menu_form.setVisible(false);
+        }else if (event.getSource() == inventory_btn) {
+            dashboard_form.setVisible(false);
+            inventory_form.setVisible(true);
+            menu_form.setVisible(false);
+
+            inventoryTypeList();
+            inventoryStatusList();
+            inventoryShowData();
+        }else if (event.getSource() == menu_btn) {
+            dashboard_form.setVisible(false);
+            inventory_form.setVisible(false);
+            menu_form.setVisible(true);
+
+            menuDisplayCard();
+        }
+    }
+
     public void logout(){
         try{
             alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -399,12 +571,13 @@ public class MainFormController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
         displayUsername();
 
         inventoryTypeList();
-
         inventoryStatusList();
-
         inventoryShowData();
+
+        menuDisplayCard();
     }
 }

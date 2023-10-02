@@ -28,9 +28,9 @@
                         <Insets left="20.0" />
                      </HBox.margin>
                   </Label>
-                  <Label fx:id="prod_price" prefHeight="22.0" prefWidth="62.0" text="0.0">
+                  <Label fx:id="prod_price" alignment="CENTER_RIGHT" prefHeight="22.0" prefWidth="66.0" text="0.0">
                      <HBox.margin>
-                        <Insets left="5.0" right="5.0" />
+                        <Insets left="5.0" right="20.0" />
                      </HBox.margin>
                      <font>
                         <Font size="15.0" />
@@ -50,7 +50,7 @@
                         <Insets right="10.0" />
                      </HBox.margin>
                   </Spinner>
-                  <Button fx:id="prod_addBtn" mnemonicParsing="false" prefHeight="26.0" prefWidth="81.0" styleClass="btn" stylesheets="@cardDesign.css" text="Add" />
+                  <Button fx:id="prod_addBtn" mnemonicParsing="false" onAction="#addBtn" prefHeight="26.0" prefWidth="81.0" styleClass="btn" stylesheets="@cardDesign.css" text="Add" />
                </children>
             </HBox>
          </children>

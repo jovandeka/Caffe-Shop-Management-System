@@ -123,19 +123,19 @@ public class MainFormController implements Initializable {
     private Label menu_change;
 
     @FXML
-    private TableColumn<?, ?> menu_col_productName;
+    private TableColumn<ProductData, String> menu_col_productName;
 
     @FXML
-    private TableColumn<?, ?> menu_col_quantity;
+    private TableColumn<ProductData, String> menu_col_quantity;
 
     @FXML
     private AnchorPane menu_form;
 
     @FXML
-    private TableView<?> menu_tableView;
+    private TableView<ProductData> menu_tableView;
 
     @FXML
-    private TableColumn<?, ?> menu_col_price;
+    private TableColumn<ProductData, String> menu_col_price;
 
     @FXML
     private GridPane menu_gridPane;
@@ -550,6 +550,35 @@ public class MainFormController implements Initializable {
         return listData;
     }
 
+    private double totalP;
+    public void menuDisplayTotal(){
+        customerID();
+        String total = "SELECT SUM(price) FROM customer WHERE customer_id = " + cID;
+
+        connect = database.conectDB();
+
+        try{
+            prepare = connect.prepareStatement(total);
+            result = prepare.executeQuery();
+
+            if (result.next()){
+                totalP = result.getDouble("SUM(price)");
+            }
+            menu_total.setText(String.valueOf(totalP));
+        }catch (Exception e){e.printStackTrace();}
+    }
+
+    public ObservableList<ProductData> menuListData;
+
+    public void menuShowData(){
+        menuListData = menuDisplayOrder();
+
+        menu_col_productName.setCellValueFactory(new PropertyValueFactory<>("productName"));
+        menu_col_quantity.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+        menu_col_price.setCellValueFactory(new PropertyValueFactory<>("price"));
+        menu_tableView.setItems(menuListData);
+    }
+
     private int cID;
     public void customerID(){
         String sql = "SELECT MAX(customer_id) FROM customer";
@@ -599,6 +628,8 @@ public class MainFormController implements Initializable {
             menu_form.setVisible(true);
 
             menuDisplayCard();
+            menuDisplayOrder();
+            menuDisplayTotal();
         }
     }
 
@@ -642,5 +673,7 @@ public class MainFormController implements Initializable {
         inventoryShowData();
 
         menuDisplayCard();
+        menuDisplayOrder();
+        menuDisplayTotal();
     }
 }

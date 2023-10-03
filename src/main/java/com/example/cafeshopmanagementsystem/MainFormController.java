@@ -476,6 +476,8 @@ public class MainFormController implements Initializable {
                 prod = new ProductData(result.getInt("id"),
                         result.getString("prod_id"),
                         result.getString("prod_name"),
+                        result.getString("type"),
+                        result.getInt("stock"),
                         result.getDouble("price"),
                         result.getString("image"),
                         result.getDate("date"));
@@ -517,6 +519,35 @@ public class MainFormController implements Initializable {
 
             }catch (Exception e){e.printStackTrace();}
         }
+    }
+
+    public ObservableList<ProductData> menuDisplayOrder(){
+        ObservableList<ProductData> listData = FXCollections.observableArrayList();
+
+        String sql = "SELECT * FROM customer";
+
+        connect = database.conectDB();
+
+        try{
+            prepare = connect.prepareStatement(sql);
+            result = prepare.executeQuery();
+
+            ProductData prod;
+
+            while (result.next()){
+                prod = new ProductData(result.getInt("id")
+                        , result.getString("prod_id")
+                        , result.getString("prod_name")
+                        , result.getString("type")
+                        , result.getInt("quantity")
+                        , result.getDouble("price")
+                        , result.getString("image")
+                        , result.getDate("date"));
+                listData.add(prod);
+            }
+        }catch (Exception e){e.printStackTrace();}
+
+        return listData;
     }
 
     private int cID;

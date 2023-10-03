@@ -90,11 +90,36 @@ public class CardProductController implements Initializable {
         connect = database.conectDB();
 
         try{
+
+            int checkStck = 0;
+            String checkStock = "SELECT stock FROM product WHERE prod_id = '" + prodID +"'";
+
+            prepare = connect.prepareStatement(checkStock);
+            result = prepare.executeQuery();
+
+            if(result.next()){
+                checkStck = result.getInt("stock");
+            }
+
             prepare = connect.prepareStatement(checkAvailable);
             result = prepare.executeQuery();
 
             if(result.next()){
                 check = result.getString("status");
+            }
+
+
+
+            if(checkStck == 0){
+                String updateStock = "UPDATE product SET prod_name = '"
+                        + prod_name.getText() + "', type = '"
+                        + type +"', stock = 0, price = "
+                        + pr +", status = 'Unavailable', image ='"
+                        + prod_image +"', date = '"
+                        +  prod_date +"' WHERE prod_id = '"+ prodID +"'";
+
+                prepare = connect.prepareStatement(updateStock);
+                prepare.executeUpdate();
             }
 
             if(!check.equals("Available") || qty == 0){
@@ -105,36 +130,27 @@ public class CardProductController implements Initializable {
                 alert.showAndWait();
             }else {
 
-                int checkStck = 0;
-                String checkStock = "SELECT stock FROM product WHERE prod_id = '" + prodID +"'";
-
-                prepare = connect.prepareStatement(checkStock);
-                result = prepare.executeQuery();
-
-                if(result.next()){
-                    checkStck = result.getInt("stock");
-                }
-
                 if(checkStck < qty){
                     alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Error Message");
                     alert.setHeaderText(null);
                     alert.setContentText("Invalid. This product is out of stock.");
                     alert.showAndWait();
-                }else {
+                } else {
                     String insertData = "INSERT INTO customer "
-                            + "(customer_id, prod_name, quantity, price, date, em_username) "
-                            + "VALUES (?,?,?,?,?,?)";
+                            + "(customer_id, prod_id, prod_name, quantity, price, date, em_username) "
+                            + "VALUES (?,?,?,?,?,?,?)";
                     prepare = connect.prepareStatement(insertData);
                     prepare.setString(1, String.valueOf(data.cID));
-                    prepare.setString(2, prod_name.getText());
-                    prepare.setString(3, String.valueOf(qty));
+                    prepare.setString(2, prodID);
+                    prepare.setString(3, prod_name.getText());
+                    prepare.setString(4, String.valueOf(qty));
                     totalP = (qty * pr);
-                    prepare.setString(4, String.valueOf(totalP));
+                    prepare.setString(5, String.valueOf(totalP));
                     Date date = new Date();
                     java.sql.Date sqlDate = new java.sql.Date(date.getTime());
-                    prepare.setString(5, String.valueOf(sqlDate));
-                    prepare.setString(6, data.username);
+                    prepare.setString(6, String.valueOf(sqlDate));
+                    prepare.setString(7, data.username);
 
                     prepare.executeUpdate();
 

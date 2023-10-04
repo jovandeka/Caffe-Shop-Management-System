@@ -34,10 +34,10 @@ public class ProductData {
         this.productId = productId;
         this.productName = productName;
         this.type = type;
+        this.quantity = quantity;
         this.price = price;
         this.image = image;
         this.date = date;
-        this.quantity = quantity;
     }
     public Integer getId(){
         return id;

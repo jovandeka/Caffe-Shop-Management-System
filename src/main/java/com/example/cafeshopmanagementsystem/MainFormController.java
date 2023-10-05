@@ -10,6 +10,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.chart.AreaChart;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
@@ -173,6 +176,24 @@ public class MainFormController implements Initializable {
     @FXML
     private Label menu_total;
 
+    @FXML
+    private Label dashboard_NC;
+
+    @FXML
+    private Label dashboard_NSP;
+
+    @FXML
+    private Label dashboard_TI;
+
+    @FXML
+    private BarChart<?, ?> dashboard_customerChart;
+
+    @FXML
+    private AreaChart<?, ?> dashboard_incomeChart;
+
+    @FXML
+    private Label dashboard_totalI;
+
     private Alert alert;
 
     private Connection connect;
@@ -183,6 +204,116 @@ public class MainFormController implements Initializable {
     private Image image;
 
     private ObservableList<ProductData> cardListData = FXCollections.observableArrayList();
+
+    public void dashboardDisplayNC(){
+        String sql = "SELECT COUNT(id) FROM receipt";
+        connect = database.conectDB();
+
+        try{
+            int nc = 0;
+            prepare = connect.prepareStatement(sql);
+            result = prepare.executeQuery();
+
+            if(result.next()){
+                nc = result.getInt("COUNT(id)");
+            }
+            dashboard_NC.setText(String.valueOf(nc));
+
+        }catch (Exception e){e.printStackTrace();}
+    }
+
+    public void dashboardDisplayTI(){
+        Date date = new Date();
+        java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+
+        String sql = "SELECT SUM(total) FROM receipt WHERE date = '"+ sqlDate +"'";
+
+        connect = database.conectDB();
+
+        try{
+            float ti = 0;
+            prepare = connect.prepareStatement(sql);
+            result = prepare.executeQuery();
+
+            if(result.next()){
+                ti = result.getFloat("SUM(total)");
+            }
+
+            dashboard_TI.setText(String.valueOf(ti));
+
+        }catch (Exception e){e.printStackTrace();}
+    }
+
+    public void dashboardTotalI(){
+        String sql = "SELECT SUM(total) FROM receipt";
+
+        connect = database.conectDB();
+
+        try{
+            double ti = 0;
+            prepare = connect.prepareStatement(sql);
+            result = prepare.executeQuery();
+
+            if(result.next()){
+                ti = result.getDouble("SUM(total)");
+            }
+            dashboard_totalI.setText(String.valueOf(ti));
+
+        }catch (Exception e){e.printStackTrace();}
+    }
+
+    public void dashboardNSP(){
+        String sql = "SELECT COUNT(quantity) FROM customer";
+
+        connect = database.conectDB();
+
+        try {
+            int q = 0;
+            prepare = connect.prepareStatement(sql);
+            result = prepare.executeQuery();
+
+            if(result.next()){
+                q = result.getInt("COUNT(quantity)");
+            }
+            dashboard_NSP.setText(String.valueOf(q));
+        }catch (Exception e){e.printStackTrace();}
+    }
+
+    public void dashboardIncomeChart(){
+        dashboard_incomeChart.getData().clear();
+
+        String sql = "SELECT date, SUM(total) FROM receipt GROUP BY date ORDER BY TIMESTAMP(date)";
+        connect = database.conectDB();
+        XYChart.Series chart = new XYChart.Series();
+        try{
+            prepare = connect.prepareStatement(sql);
+            result = prepare.executeQuery();
+
+            while (result.next()){
+                chart.getData().add(new XYChart.Data<>(result.getString(1), result.getFloat(2)));
+            }
+
+            dashboard_incomeChart.getData().add(chart);
+        }catch (Exception e){e.printStackTrace();}
+    }
+
+    public void dashboardCustomerChart(){
+        dashboard_customerChart.getData().clear();
+
+        String sql = "SELECT date, COUNT(id) FROM receipt GROUP BY date ORDER BY TIMESTAMP(date)";
+        connect = database.conectDB();
+        XYChart.Series chart = new XYChart.Series();
+        try{
+            prepare = connect.prepareStatement(sql);
+            result = prepare.executeQuery();
+
+            while (result.next()){
+                chart.getData().add(new XYChart.Data<>(result.getString(1), result.getInt(2)));
+            }
+
+            dashboard_customerChart.getData().add(chart);
+        }catch (Exception e){e.printStackTrace();}
+    }
 
     public void inventoryAddBtn(){
         if(inventory_productID.getText().isEmpty()
@@ -479,7 +610,7 @@ public class MainFormController implements Initializable {
 
     public ObservableList<ProductData> menuGetData(){
 
-        String sql="SELECT * FROM product";
+        String sql="SELECT * FROM product WHERE status = 'Available' ";
 
         ObservableList<ProductData> listData = FXCollections.observableArrayList();
         connect = database.conectDB();
@@ -723,6 +854,7 @@ public class MainFormController implements Initializable {
                 }
 
                 menuShowOrderData();
+                menuDisplayTotal();
             }catch (Exception e){e.printStackTrace();}
         }
     }
@@ -806,6 +938,13 @@ public class MainFormController implements Initializable {
             inventory_form.setVisible(false);
             menu_form.setVisible(false);
             customers_form.setVisible(false);
+
+            dashboardDisplayNC();
+            dashboardDisplayTI();
+            dashboardTotalI();
+            dashboardNSP();
+            dashboardIncomeChart();
+            dashboardCustomerChart();
         }else if (event.getSource() == inventory_btn) {
             dashboard_form.setVisible(false);
             inventory_form.setVisible(true);
@@ -832,6 +971,11 @@ public class MainFormController implements Initializable {
 
             customersShowData();
         }
+    }
+
+    public void menuRefreshBtn(){
+        menuDisplayTotal();
+        menuShowOrderData();
     }
 
     public void logout(){
@@ -868,6 +1012,13 @@ public class MainFormController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         displayUsername();
+
+        dashboardDisplayNC();
+        dashboardDisplayTI();
+        dashboardTotalI();
+        dashboardNSP();
+        dashboardIncomeChart();
+        dashboardCustomerChart();
 
         inventoryTypeList();
         inventoryStatusList();

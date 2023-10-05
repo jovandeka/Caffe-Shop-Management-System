@@ -123,12 +123,6 @@ public class CaffeLoginController {
 
                     data.username = si_username.getText();
 
-                    alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Information Message");
-                    alert.setHeaderText("");
-                    alert.setContentText("Successfully logged in.");
-                    alert.showAndWait();
-
                     Parent root = FXMLLoader.load(getClass().getResource("main-form.fxml"));
 
                     Stage stage = new Stage();

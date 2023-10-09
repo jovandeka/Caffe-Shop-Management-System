@@ -858,6 +858,9 @@ public class MainFormController implements Initializable {
             }catch (Exception e){e.printStackTrace();}
         }
     }
+    public void menuReceiptBtn(){
+
+    }
     public void menuRestart(){
         totalP = 0;
         change = 0;

@@ -21,6 +21,13 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.design.JasperDesign;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
+import net.sf.jasperreports.view.JasperViewer;
 
 import java.io.File;
 import java.net.URL;
@@ -818,7 +825,6 @@ public class MainFormController implements Initializable {
                         alert.showAndWait();
 
                         menuShowOrderData();
-                        menuRestart();
                     }else {
                         alert = new Alert(Alert.AlertType.WARNING);
                         alert.setTitle("Information Message");
@@ -859,7 +865,27 @@ public class MainFormController implements Initializable {
         }
     }
     public void menuReceiptBtn(){
+        if(totalP == 0 || menu_amount.getText().isEmpty()){
+            alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error Message");
+            alert.setHeaderText(null);
+            alert.setContentText("Please order first.");
+            alert.showAndWait();
+        }else{
+            HashMap map = new HashMap();
+            map.put("getReceipt", (cID-1));
 
+            try{
+                JasperDesign jDesign = JRXmlLoader.load("D:\\Jovan\\Java programi\\cafeShopManagementSystem\\src\\main\\resources\\com\\example\\cafeshopmanagementsystem\\report.jrxml");
+                JasperReport jReport = JasperCompileManager.compileReport(jDesign);
+                JasperPrint jPrint = JasperFillManager.fillReport(jReport, map, connect);
+
+                JasperViewer.viewReport(jPrint, false);
+
+                menuRestart();
+            }catch (Exception e){e.printStackTrace();}
+
+        }
     }
     public void menuRestart(){
         totalP = 0;

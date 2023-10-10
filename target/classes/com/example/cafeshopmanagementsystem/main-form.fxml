@@ -355,8 +355,8 @@
                                     </Label>
                                     <Button fx:id="menu_payBtn" layoutX="16.0" layoutY="469.0" mnemonicParsing="false" onAction="#menuPayBtn" prefHeight="38.0" prefWidth="230.0" styleClass="btn" stylesheets="@mainFormDesign.css" text="Pay" AnchorPane.bottomAnchor="66.99999999999997" AnchorPane.leftAnchor="16.0" AnchorPane.rightAnchor="15.999999999999972" />
                                     <Button fx:id="menu_removeBtn" layoutX="16.0" layoutY="521.0" mnemonicParsing="false" onAction="#menuRemoveBtn" prefHeight="35.0" prefWidth="110.0" styleClass="btn" stylesheets="@mainFormDesign.css" text="Remove" AnchorPane.bottomAnchor="18.199999999999974" AnchorPane.leftAnchor="15.0" />
-                                    <Button fx:id="menu_receiptBtn" layoutX="135.0" layoutY="521.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="110.0" styleClass="btn" stylesheets="@mainFormDesign.css" text="Receipt" AnchorPane.bottomAnchor="18.199999999999974" AnchorPane.rightAnchor="16.99999999999997" />
-                                    <Button fx:id="menu_refreshBtn" layoutX="119.0" layoutY="321.0" mnemonicParsing="false" onAction="#menuRefreshBtn" styleClass="btn" stylesheets="@mainFormDesign.css">
+                                    <Button fx:id="menu_receiptBtn" layoutX="135.0" layoutY="521.0" mnemonicParsing="false" onAction="#menuReceiptBtn" prefHeight="35.0" prefWidth="110.0" styleClass="btn" stylesheets="@mainFormDesign.css" text="Receipt" AnchorPane.bottomAnchor="18.199999999999974" AnchorPane.rightAnchor="16.99999999999997" />
+                                    <Button fx:id="menu_refreshBtn" layoutX="119.0" layoutY="321.0" mnemonicParsing="false" onAction="#menuRefreshBtn" styleClass="btn" stylesheets="@mainFormDesign.css" AnchorPane.bottomAnchor="224.59999999999997" AnchorPane.leftAnchor="119.0" AnchorPane.rightAnchor="112.19999999999997">
                                        <graphic>
                                           <FontAwesomeIcon fill="WHITE" glyphName="REFRESH" />
                                        </graphic>
